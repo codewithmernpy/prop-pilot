@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PropPilot Report — {{ rules.name }}</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131a2e;
+      --border: rgba(230, 233, 242, 0.12);
+      --text: #e6e9f2;
+      --muted: #9aa4bf;
+      --primary: #6366f1;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px 20px 48px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.55;
+    }
+    .container { max-width: 1220px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 1.8rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.18);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .plan-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(16, 185, 129, 0.10));
+      border: 1px solid rgba(99, 102, 241, 0.45);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .plan-card h2 { margin: 0 0 8px; font-size: 1.15rem; color: #c7d2fe; }
+    .plan-headline { font-size: 1.1rem; font-weight: 600; margin: 0 0 14px; }
+    .risk-banner {
+      font-size: 1.08rem;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 0 0 14px;
+      border: 1px solid;
+    }
+    .risk-ok { color: #6ee7b7; border-color: rgba(16, 185, 129, 0.6); background: rgba(16, 185, 129, 0.10); }
+    .risk-bad { color: #fca5a5; border-color: rgba(239, 68, 68, 0.7); background: rgba(239, 68, 68, 0.14); }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+    }
+    .kpi {
+      background: rgba(11, 16, 32, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .kpi .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .value { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .card h3 { margin: 0 0 12px; font-size: 1.05rem; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; }
+    .warn-box {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      color: #fde68a;
+    }
+    .ai-box {
+      white-space: pre-wrap;
+      font-size: 0.94rem;
+      color: var(--text);
+      background: rgba(11, 16, 32, 0.55);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.84rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>PropPilot Pass Plan</h1>
+        <div class="subtitle">
+          Rules: <strong>{{ rules.name }}</strong> (${{ "{:,.0f}".format(rules.account_size) }}) |
+          Objective: <strong>{{ result.objective }}</strong> |
+          Trades: {{ "{:,}".format(trade_stats.n_trades) }} ({{ trade_stats.start_utc }} to {{ trade_stats.end_utc }})
+        </div>
+      </div>
+      <div>
+        <span class="badge">{{ "AI Copilot (Claude)" if used_ai else "Offline Deterministic Analysis" }}</span>
+      </div>
+    </header>
+
+    <section class="plan-card">
+      <h2>Recommended Execution Plan Card</h2>
+      <div class="risk-banner {{ 'risk-ok' if result.funded_risk_ok else 'risk-bad' }}">
+        FUNDED RISK &mdash; {{ result.funded_risk_line() }}
+      </div>
+      <p class="plan-headline">{{ result.plan_card_summary(include_funded_risk=False) }}</p>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">Validate Pass Rate</div>
+          <div class="value">{{ "{:.1f}%".format(result.val_summary.pass_rate * 100) }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Median Days to Funded</div>
+          <div class="value">{{ "{:.1f}d".format(result.val_summary.days_median) if result.val_summary.days_median is not none else "N/A" }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Expected Cost / Funded</div>
+          <div class="value">{{ "${:,.0f}".format(result.val_summary.expected_fees) if val_cost_finite else "N/A (0% pass rate)" }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">P(Lose Funded in 12m) opt / val</div>
+          <div class="value">{{ "{:.1f}%".format(result.funded_summary.p_lose_account * 100) }} / {{ "{:.1f}%".format(result.funded_val_summary.p_lose_account * 100) if result.funded_val_summary is not none else "N/A" }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Funded Payout (mean, incl. losses)</div>
+          <div class="value">${{ "{:,.0f}".format(result.funded_summary.monthly_payout_mean_usd) }}/mo</div>
+        </div>
+      </div>
+    </section>
+
+    {% if result.warnings %}
+    <section class="warn-box">
+      <strong>Diagnostic Warnings</strong>
+      <ul>
+        {% for w in result.warnings %}
+        <li>{{ w }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    <section class="card">
+      <h3>Honest Out-of-Sample &amp; Monte Carlo Comparison</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Cohort</th>
+            <th>Finished</th>
+            <th>Unfinished</th>
+            <th>Pass Rate</th>
+            <th>Breach Rate</th>
+            <th>Restart Rate</th>
+            <th>Median Days</th>
+            <th>Exp. Attempts</th>
+            <th>Exp. Fees</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in comparison_rows %}
+          <tr>
+            <td><strong>{{ row.label }}</strong></td>
+            <td>{{ row.n_finished }}</td>
+            <td>{{ row.n_unfinished }}</td>
+            <td>{{ row.pass_rate }}</td>
+            <td>{{ row.fail_rate }}</td>
+            <td>{{ row.restart_rate }}</td>
+            <td>{{ row.days_median }}</td>
+            <td>{{ row.expected_attempts }}</td>
+            <td>{{ row.expected_fees }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <div class="grid-2">
+      <div class="card">{{ chart_days | safe }}</div>
+      <div class="card">{{ chart_heatmap | safe }}</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">{{ chart_fan | safe }}</div>
+      <div class="card">{{ chart_failures | safe }}</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">{{ chart_funded_dist | safe }}</div>
+      <div class="card">{{ chart_funded_monthly | safe }}</div>
+    </div>
+
+    <section class="card">
+      <h3>Strategy &amp; Copilot Plan Narrative</h3>
+      <div class="ai-box">{{ explanation_text }}</div>
+    </section>
+
+    <footer>
+      <span>Generated by PropPilot v{{ version }} on {{ generated_utc }}</span>
+      <span>Part of the Crypto Quant Suite: QuantCritic | PropPilot | SqueezeRadar | RiskGuard</span>
+    </footer>
+  </div>
+</body>
+</html>

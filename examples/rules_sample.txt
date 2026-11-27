@@ -1,0 +1,9 @@
+Evaluation Rules (Generic 2-Phase Program)
+- Phase 1 Profit Target: +8%
+- Phase 2 Profit Target: +5%
+- Minimum Trading Days: 4 days per phase
+- Time Limit: Unlimited
+- Maximum Daily Loss: 5% (resets daily at 00:00 UTC)
+- Maximum Overall Loss: 10% static drawdown
+- Evaluation Fee: $500 for $100,000 account
+- Funded Profit Split: 80%, payouts every 14 days

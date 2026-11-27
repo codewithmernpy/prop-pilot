@@ -1,0 +1,23 @@
+name: Two-Step Classic
+phases:
+  - name: Phase 1
+    target_pct: 8.0
+    min_days: 4
+    max_days: null
+  - name: Phase 2
+    target_pct: 5.0
+    min_days: 4
+    max_days: null
+daily_loss_pct: 5.0
+daily_basis: day_start_balance
+daily_reset: 0
+max_loss_pct: 10.0
+max_loss_type: static
+trailing_lock_at_initial: false
+consistency_pct: null
+fee: 500.0
+profit_split: 80.0
+payout_frequency_days: 14
+account_size: 100000.0
+max_risk_per_trade_pct: null
+ambiguities: []

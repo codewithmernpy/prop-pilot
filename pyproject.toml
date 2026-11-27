@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proppilot"
+version = "0.1.0"
+description = "Turn any crypto strategy into a prop-firm pass plan."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Surani Asim"}
+]
+dependencies = [
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "plotly>=5.18",
+    "jinja2>=3.1",
+    "pyyaml>=6.0",
+    "anthropic>=2.0",
+    "pydantic>=2.5",
+    "streamlit>=1.40",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+proppilot = "proppilot.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["proppilot*"]
+
+[tool.setuptools.package-data]
+proppilot = ["presets/*.yaml", "report/*.j2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
